@@ -1,11 +1,14 @@
 from . import db
 
-class User(db.Model):
-    __tablename__ = 'users'
+class Operator(db.Model):
+    __tablename__ = 'Operators'
     
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    operator_id = db.Column(db.String(30) ,nullable=True)
+    avatar = db.Column(db.String(80) ,nullable=True)
+    name = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(20), nullable=True)
+    is_online = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<Operator {self.name}>'

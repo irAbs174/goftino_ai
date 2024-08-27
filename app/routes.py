@@ -1,12 +1,28 @@
-from flask import Blueprint, request, jsonify
-from .models import db, User
+from flask import (Blueprint,
+    request, jsonify, render_template
+    )
+from .core.conf import (GOFTINO_BASE_URL,
+    GOFTINO_API_KEY, OPEN_AI_BASE_URL, OPEN_AI_API_KEY
+    )
+from .models import (db, Operator)
+import requests
 
+# Define BluePrint Decorator
 main = Blueprint('main', __name__)
 
 # Define index route
 @main.route('/', methods=['get'])
 def index():
-    return "<p style='text-align: center;'>irAbs174 ;)</p>"
+    return render_template('index.html')
+
+@main.route('/operators/list', methods=['post'])
+def get_operators_list():
+    headers = {
+        'Content-Type': 'application/json',
+        'goftino-key': GOFTINO_API_KEY
+    }
+    requests.get(f'{GOFTINO_API_KEY}/operators').json()
+    return jsonify({'status': 200, 'data': [{operator.name if operator.name else None} for operator in Operator.query.all()]})
 
 # Define the webhook route
 @main.route('/webhook', methods=['POST'])

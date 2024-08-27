@@ -2,10 +2,13 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+@app.route('/', methods=['get'])
+def index():
+    return "<p style='text-align: center;'>irAbs174 ;)</p>"
+
 # Define the webhook route
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    # Get the JSON data from the request
     data = request.json
     
     # Print the received data
@@ -17,4 +20,4 @@ def webhook():
 
 if __name__ == '__main__':
     # Run the Flask app on a specific port
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8888)

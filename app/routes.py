@@ -29,16 +29,11 @@ def get_operators_list():
     try:
         response = requests.get(f'{GOFTINO_BASE_URL}/operators', headers=headers)
         response.raise_for_status()
-
         data = response.json()['data']['operators']
-
         existing_operators = {op.operator_id: op for op in Operator.query.all()}
-
         new_operators = []
-
         for operator in data:
             operator_id = operator['operator_id']
-
             if operator_id in existing_operators:
                 existing_operator = existing_operators[operator_id]
                 existing_operator.is_online = operator['is_online']
@@ -51,7 +46,7 @@ def get_operators_list():
                     is_online=operator['is_online']
                 )
                 new_operators.append(new_operator)
-        
+
         if new_operators:
             db.session.bulk_save_objects(new_operators)
 

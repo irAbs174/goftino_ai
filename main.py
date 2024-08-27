@@ -17,7 +17,3 @@ def webhook():
     
     # Respond with a JSON object (optional)
     return jsonify({'status': 'success', 'received': data})
-
-if __name__ == '__main__':
-    # Run the Flask app on a specific port
-    app.run(host='0.0.0.0', port=8888)

@@ -10,14 +10,14 @@
  https://chat.openai.com
 
 Install :
-1. Rename simple_conf.py to conf.py with execute:
+1. Rename app/core/simple_conf.py to app/core/conf.py with execute:
 ``` bash
-mv simple_conf.py conf.py
+mv app/core/simple_conf.py app/core/conf.py
 ```
-2. setup your conf.py configure(Api)
+2. setup your app/core/conf.py configure(Api)
 3. execute and enjoy :
 ``` bash
-chmod 755 INSTALL.sh && ./INSTALL.sh
+chmod 755 app/deploy.sh && ./deploy.sh
 ```
 
 4

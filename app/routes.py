@@ -6,7 +6,9 @@ from .core.conf import (
     GOFTINO_BASE_URL, GOFTINO_API_KEY,
     OPEN_AI_BASE_URL, OPEN_AI_API_KEY
     )
-from .models import (db, Operator)
+from .models import (db, Setting, Operator,
+    Visit, User, Chat, Message
+    )
 import requests
 
 # Define BluePrint Decorator
@@ -17,38 +19,72 @@ main = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-@main.route('/operators/list', methods=['post'])
+@main.route('/operators', methods=['POST'])
 def get_operators_list():
     headers = {
         'Content-Type': 'application/json',
         'goftino-key': GOFTINO_API_KEY
     }
-    response = requests.get(f'{GOFTINO_BASE_URL}/operators', headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        for operator in data['data']['operators']:
-            exsist_operator = Operator.query.filter_by(operator_id=operator['operator_id']).first()
-            if not exsist_operator:
+
+    try:
+        response = requests.get(f'{GOFTINO_BASE_URL}/operators', headers=headers)
+        response.raise_for_status()
+
+        data = response.json()['data']['operators']
+
+        existing_operators = {op.operator_id: op for op in Operator.query.all()}
+
+        new_operators = []
+
+        for operator in data:
+            operator_id = operator['operator_id']
+
+            if operator_id in existing_operators:
+                existing_operator = existing_operators[operator_id]
+                existing_operator.is_online = operator['is_online']
+            else:
                 new_operator = Operator(
-                    operator_id=operator['operator_id'],
+                    operator_id=operator_id,
                     name=operator['name'],
                     avatar=operator['avatar'],
                     email=operator['email'],
                     is_online=operator['is_online']
                 )
-                db.session.add(new_operator)
-            else:
-                exsist_operator.is_online = operator['is_online']
+                new_operators.append(new_operator)
         
-        message = "Succcessfuly Updated/added operators"
-    else:
-        message = "Failed to fetch operators"
+        if new_operators:
+            db.session.bulk_save_objects(new_operators)
 
-    db.session.commit()
+        db.session.commit()
+        message = "Successfully updated/added operators"
+
+    except requests.exceptions.RequestException as e:
+        # Handle errors in the external API request
+        db.session.rollback()
+        message = f"Failed to fetch operators: {str(e)}"
+        return jsonify({'status': 500, 'message': message}), 500
+
     return jsonify({
-        'status': response.status_code,
+        'status': 200,
         'message': message
     })
+
+@main.route('/app_state', methods=['POST'])
+def change_app_state():
+    try:
+        setting = Setting.query.first()
+        setting.state = 'on' if setting.state == 'off' else 'off'
+        db.session.commit()
+        return jsonify({
+            'status': 200,
+            'message': f'State changed to {setting.state}'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 500,
+            'message': f'An error occurred: {str(e)}'
+        }), 500
+    
 
 # Define the webhook route
 @main.route('/webhook', methods=['POST'])

@@ -1,8 +1,12 @@
 # Security projects configure
 # => Make sure added conf.py in .gitignore file
+HOST= '0.0.0.0'
+PORT= 8888
+
+DB_NAME= 'sqlite.db'
 
 GOFTINO_BASE_URL = "https://api.goftino.com/v1"
-GOFTINO_API_SECRET = "SET_YOURS"
+GOFTINO_API_KEY = "SET_YOUR_KEYS_HERE"
 
-OPEN_AI_BASE_URL = "https://api.openai.com/"
-OPEN_AI_API_SECRET = "SET_YOURS"
+OPEN_AI_BASE_URL = "https://api.openai.com/v1"
+OPEN_AI_API_KEY = "SET_YOUR_KEYS_HERE"

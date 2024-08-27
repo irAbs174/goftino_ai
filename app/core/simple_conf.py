@@ -3,7 +3,10 @@
 HOST= '0.0.0.0'
 PORT= 8888
 
-DB_NAME= 'sqlite.db'
+class ConfigDB:
+    SECRET_KEY = 'your_secret_key'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///sqlite.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 GOFTINO_BASE_URL = "https://api.goftino.com/v1"
 GOFTINO_API_KEY = "SET_YOUR_KEYS_HERE"

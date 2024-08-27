@@ -1,4 +1,5 @@
 flask
 Flask-SQLAlchemy
+Flask-Migrate
 openai==0.28
 gunicorn

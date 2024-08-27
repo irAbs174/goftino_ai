@@ -17,4 +17,4 @@ pip3 install -r requirements.txt
 clear
 
 echo "bind gunicorn proxy on port $proxy_host:$proxy_port";
-gunicorn --workers 4 --bind $proxy_host:$proxy_port main:app
+gunicorn --workers 4 --bind $proxy_host:$proxy_port run:app

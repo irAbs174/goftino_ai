@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Make deploy.sh executable
+      - name: Make build/build.sh executable
         run: chmod +x ./deploy.sh
 
       - name: Run deploy script

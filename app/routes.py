@@ -54,4 +54,5 @@ def get_operators_list():
 @main.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    return jsonify({'status': 'success', 'received': data})
+    requests.post(f'http://0.0.0.0:8000/{data["user_id"]}')
+    return jsonify({'status': 200, 'received': data})

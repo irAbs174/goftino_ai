@@ -1,5 +1,15 @@
 from . import db
 
+class Setting(db.Model):
+    __tablename__ = 'Application_Settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(5) ,nullable=True)
+
+    def __repr__(self):
+        return f'<Setting {self.state}>'
+
+
 class Operator(db.Model):
     __tablename__ = 'Operators'
     

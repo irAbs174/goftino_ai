@@ -22,7 +22,7 @@ jobs:
           python-version: '3.x'
 
       - name: Make build.sh executable
-        run: chmod +x ./build/deploy.sh
+        run: chmod +x build/deploy.sh
 
       - name: Run build script
-        run: ./build/deploy.sh
+        run: build/deploy.sh

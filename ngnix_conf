@@ -11,7 +11,4 @@ server {
     }
 
     # Optionally, serve static files directly through Nginx
-    location /static {
-        alias /home/unique/Documents/projects/goftino_ai/app/static;
-    }
 }

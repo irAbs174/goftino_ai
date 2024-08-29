@@ -19,67 +19,44 @@ main = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-@main.route('/operators', methods=['POST'])
-def get_operators_list():
-    headers = {
-        'Content-Type': 'application/json',
-        'goftino-key': GOFTINO_API_KEY
-    }
-
+@main.route('/chat_storage', methods=['POST'])
+def chat_storage():
     try:
-        response = requests.get(f'{GOFTINO_BASE_URL}/operators', headers=headers)
-        response.raise_for_status()
-        data = response.json()['data']['operators']
-        existing_operators = {op.operator_id: op for op in Operator.query.all()}
-        new_operators = []
-        for operator in data:
-            operator_id = operator['operator_id']
-            if operator_id in existing_operators:
-                existing_operator = existing_operators[operator_id]
-                existing_operator.is_online = operator['is_online']
-            else:
-                new_operator = Operator(
-                    operator_id=operator_id,
-                    name=operator['name'],
-                    avatar=operator['avatar'],
-                    email=operator['email'],
-                    is_online=operator['is_online']
-                )
-                new_operators.append(new_operator)
-
-        if new_operators:
-            db.session.bulk_save_objects(new_operators)
-
-        db.session.commit()
-        message = "Successfully updated/added operators"
-
-    except requests.exceptions.RequestException as e:
-        # Handle errors in the external API request
-        db.session.rollback()
-        message = f"Failed to fetch operators: {str(e)}"
-        return jsonify({'status': 500, 'message': message}), 500
-
-    return jsonify({
-        'status': 200,
-        'message': message
-    })
+        data = request.json
+        return jsonify({
+            'status': 200,
+            'message': data
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 500,
+            'message': f'An error occurred: {str(e)}'
+        }), 500
 
 @main.route('/app_state', methods=['POST'])
 def change_app_state():
     try:
         setting = Setting.query.first()
+
         if not setting:
-            init_setting = Setting()
-            db.session.add(init_setting)
+            init = Setting(state=True)
+            db.session.add(init)
             db.session.commit()
 
-        setting.state = True if setting.state == False else False
-        db.session.commit()
+            return jsonify({
+                'status': 200,
+                'message': 'State initialized to On'
+            })
 
-        return jsonify({
-            'status': 200,
-            'message': f'State changed to {"on" if setting.state else "Off"}'
-        })
+        else:
+            setting.state = not setting.state
+            db.session.commit()
+
+            return jsonify({
+                'status': 200,
+                'message': f'State changed to {"on" if setting.state else "Off"}'
+            })
+
     except Exception as e:
         return jsonify({
             'status': 500,

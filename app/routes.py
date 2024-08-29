@@ -68,11 +68,17 @@ def get_operators_list():
 def change_app_state():
     try:
         setting = Setting.query.first()
-        setting.state = 'on' if setting.state == 'off' else 'off'
+        if not setting:
+            init_setting = Setting()
+            db.session.add(init_setting)
+            db.session.commit()
+
+        setting.state = True if setting.state == False else False
         db.session.commit()
+
         return jsonify({
             'status': 200,
-            'message': f'State changed to {setting.state}'
+            'message': f'State changed to {"on" if setting.state else "Off"}'
         })
     except Exception as e:
         return jsonify({

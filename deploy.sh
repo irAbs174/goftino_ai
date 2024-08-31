@@ -14,6 +14,11 @@ echo "Start Goftino_Ai Builder Version $Version";
 
 #echo "Installing requirements";
 #pip3 install -r requirements.txt
+
+flask db init
+flask db migrate
+flask db upgrade
+
 clear
 
 echo "bind gunicorn proxy on port $proxy_host:$proxy_port";

@@ -1,5 +1,5 @@
 env
 conf.py
 sqlite.db
-migrations
+/migrations/
 __pycache__

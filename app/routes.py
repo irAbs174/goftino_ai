@@ -62,7 +62,51 @@ def change_app_state():
             'status': 500,
             'message': f'An error occurred: {str(e)}'
         }), 500
-    
+
+@main.route('/get_operators_list', methods=['POST'])   
+def get_operators_list():
+    headers = {
+        'Content-Type': 'application/json',
+        'goftino-key': GOFTINO_API_KEY
+    }
+
+    try:
+        response = requests.get(f'{GOFTINO_BASE_URL}/operators', headers=headers)
+        response.raise_for_status()
+        data = response.json()['data']['operators']
+        existing_operators = {op.operator_id: op for op in Operator.query.all()}
+        new_operators = []
+        for operator in data:
+            operator_id = operator['operator_id']
+            if operator_id in existing_operators:
+                existing_operator = existing_operators[operator_id]
+                existing_operator.is_online = operator['is_online']
+            else:
+                new_operator = Operator(
+                    operator_id=operator_id,
+                    name=operator['name'],
+                    avatar=operator['avatar'],
+                    email=operator['email'],
+                    is_online=operator['is_online']
+                )
+                new_operators.append(new_operator)
+
+        if new_operators:
+            db.session.bulk_save_objects(new_operators)
+
+        db.session.commit()
+        message = "Successfully updated/added operators"
+
+    except requests.exceptions.RequestException as e:
+        # Handle errors in the external API request
+        db.session.rollback()
+        message = f"Failed to fetch operators: {str(e)}"
+        return jsonify({'status': 500, 'message': message}), 500
+
+    return jsonify({
+        'status': 200,
+        'message': message
+    })
 
 # Define the webhook route
 @main.route('/webhook', methods=['POST'])

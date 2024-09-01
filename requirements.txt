@@ -3,4 +3,8 @@ Flask-SQLAlchemy
 Flask-Migrate
 openai==0.28
 flask-autodoc
+pandas
+transformers[torch]
+scikit-learn==1.5.0
+torch
 gunicorn

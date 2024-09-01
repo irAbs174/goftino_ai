@@ -15,10 +15,9 @@ echo "Start Goftino_Ai Builder Version $Version";
 #echo "Installing requirements";
 #pip3 install -r requirements.txt
 
-# Create db or use exist db
-flask db init
-flask db migrate
-flask db upgrade
+#flask db init
+#flask db migrat
+#flask db upgrade
 
 clear
 

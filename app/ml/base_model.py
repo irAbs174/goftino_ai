@@ -5,17 +5,22 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 import json
 import re
+import os
 
-class BasicModel:
+class DynamicModel:
     def __init__(self, json_file='base_model.json'):
         # Load the JSON file into a dictionary
-        with open(json_file, 'r', encoding='utf-8') as json_file:
-            self.label_dict = json.load(json_file)
+        if os.path.exists(json_file):
+            with open(json_file, 'r', encoding='utf-8') as file:
+                self.label_dict = json.load(file)
+        else:
+            self.label_dict = {}
         
         # Convert the dictionary to a DataFrame
         self.data = pd.DataFrame(list(self.label_dict.items()), columns=['query', 'label'])
-
-        self.set_data_query()
+        self.vectorizer = None
+        self.model = None
+        self.train_model()
 
     def preprocess_text(self, text):
         # Preprocess the text data
@@ -36,37 +41,64 @@ class BasicModel:
         # Split the data into training and testing sets
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2, random_state=42)
 
-    def train_svm_model(self):
-        # Train an SVM model
-        self.model = SVC(kernel='linear', probability=True)
-        self.model.fit(self.X_train, self.y_train)
+    def train_model(self):
+        # Train the model if data exists
+        if not self.data.empty:
+            self.vectorize_text_data()
+            self.split_the_data_into_training()
+            self.model = SVC(kernel='linear', probability=True)
+            self.model.fit(self.X_train, self.y_train)
+            self.evaluate_model()
+        else:
+            print("No data available to train the model.")
 
     def evaluate_model(self):
         # Evaluate the model
-        self.y_pred = self.model.predict(self.X_test)
-        print(f'Accuracy: {accuracy_score(self.y_test, self.y_pred)}')
+        if self.model:
+            self.y_pred = self.model.predict(self.X_test)
+            print(f'Accuracy: {accuracy_score(self.y_test, self.y_pred)}')
+        else:
+            print("Model is not trained yet.")
 
     def find_label(self, query):
-        # Function to find the label using both rule-based and ML model
-        # Rule-based system (prioritize 'سوالات متداول' matches)
+        # Function to find the label using the rule-based system
         for keyword, label in self.label_dict.items():
             if keyword in query:
                 return label
-        
+
     def search(self, query):
         # If no match, use the ML model
-        query_vectorized = self.vectorizer.transform([query])
-        predicted_label = self.model.predict(query_vectorized)[0]
-        return predicted_label
+        label = self.find_label(query)
+        if label:
+            return label
+        elif self.model:
+            query_vectorized = self.vectorizer.transform([query])
+            predicted_label = self.model.predict(query_vectorized)[0]
+            return predicted_label
+        else:
+            return "Unknown"
+
+    def add_to_training_data(self, query, label):
+        # Add new query and label to the training data
+        self.label_dict[query] = label
+        self.data = pd.DataFrame(list(self.label_dict.items()), columns=['query', 'label'])
+        self.train_model()
+
+    def save_model(self, json_file='base_model.json'):
+        # Save the model to a JSON file
+        with open(json_file, 'w', encoding='utf-8') as file:
+            json.dump(self.label_dict, file, ensure_ascii=False, indent=4)
 
 # Example usage:
-model = BasicModel()
-model.vectorize_text_data()
-model.split_the_data_into_training()
-model.train_svm_model()
-model.evaluate_model()
-
-while 1:
-    # Test with a sample query
+model = DynamicModel()
+while True:
     query = input("سوال بپرس: ")
-    print(f'درخواست: {model.search(query)}')
+    result = model.search(query)
+    print(f'درخواست: {result}')
+
+    # Optionally, ask for feedback
+    feedback = input("آیا این پاسخ درست است؟ (بله/خیر): ")
+    if feedback.lower() == 'خیر':
+        correct_label = input("لطفاً برچسب صحیح را وارد کنید: ")
+        model.add_to_training_data(query, correct_label)
+        model.save_model()

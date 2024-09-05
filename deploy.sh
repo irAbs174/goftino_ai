@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Define app variables
 Version="0.0.1"
 proxy_host="0.0.0.0"
 proxy_port="8888"
+
+# Define the path to the SQLite database file
+DB_FILE="instance/sqlite.db"
 
 echo "Start Goftino_Ai Builder Version $Version";
 
@@ -15,9 +19,19 @@ echo "Start Goftino_Ai Builder Version $Version";
 #echo "Installing requirements";
 #pip3 install -r requirements.txt
 
-#flask db init
-#flask db migrate
-#flask db upgrade
+# Check if the database file exists
+if [ ! -f "$DB_FILE" ]; then
+    echo "Database file not found. Initializing database..."
+    
+    # Run Flask database commands
+    flask db init
+    flask db migrate
+    flask db upgrade
+
+    echo "Database initialized and migrated."
+else
+    echo "Database file already exists. No action needed."
+fi
 
 clear
 

@@ -6,6 +6,8 @@ from .core.conf import (
     GOFTINO_BASE_URL, GOFTINO_API_KEY,
     OPEN_AI_BASE_URL, OPEN_AI_API_KEY
     )
+from .ml.base_model import DynamicModel as DM
+from .chat import Message
 from .models import (db, Setting, Operator,
     Visit, User, Chat, Message
     )
@@ -111,6 +113,12 @@ def get_operators_list():
 # Define the webhook route
 @main.route('/webhook', methods=['POST'])
 def webhook():
-    data = request.json
-    requests.post(f'http://0.0.0.0:8000/{data["user_id"]}')
-    return jsonify({'status': 200, 'received': data})
+    d = request.json
+    try:
+        status = 200
+        event = d['event']
+        data = d['data']
+    except:
+        status = 403
+        data = 'bad request'
+    return jsonify({'status': status, 'received': data})

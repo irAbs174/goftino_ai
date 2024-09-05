@@ -8,7 +8,7 @@ import re
 import os
 
 class DynamicModel:
-    def __init__(self, json_file='base_model.json'):
+    def __init__(self, json_file='app/ml/base_model.json'):
         # Load the JSON file into a dictionary
         if os.path.exists(json_file):
             with open(json_file, 'r', encoding='utf-8') as file:
@@ -89,16 +89,15 @@ class DynamicModel:
         with open(json_file, 'w', encoding='utf-8') as file:
             json.dump(self.label_dict, file, ensure_ascii=False, indent=4)
 
-# Example usage:
-model = DynamicModel()
-while True:
-    query = input("سوال بپرس: ")
-    result = model.search(query)
-    print(f'درخواست: {result}')
+    # test model:
+    def test(self):
+        query = input("سوال بپرس: ")
+        result = self.search(query)
+        print(f'درخواست: {result}')
 
-    # Optionally, ask for feedback
-    feedback = input("آیا این پاسخ درست است؟ (بله/خیر): ")
-    if feedback.lower() == 'خیر':
-        correct_label = input("لطفاً برچسب صحیح را وارد کنید: ")
-        model.add_to_training_data(query, correct_label)
-        model.save_model()
+        # Optionally, ask for feedback
+        feedback = input("آیا این پاسخ درست است؟ (بله/خیر): ")
+        if feedback.lower() == 'خیر':
+            correct_label = input("لطفاً برچسب صحیح را وارد کنید: ")
+            self.add_to_training_data(query, correct_label)
+            self.save_model()

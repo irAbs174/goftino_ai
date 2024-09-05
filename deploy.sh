@@ -22,18 +22,17 @@ echo "Start Goftino_Ai Builder Version $Version";
 # Check if the database file exists
 if [ ! -f "$DB_FILE" ]; then
     echo "Database file not found. Initializing database..."
-    
-    # Run Flask database commands
+
     flask db init
     flask db migrate
     flask db upgrade
 
-    echo "Database initialized and migrated."
 else
-    echo "Database file already exists. No action needed."
+    echo "Database file already exists."
 fi
 
 clear
 
+# bind flask server
 echo "bind gunicorn proxy on port $proxy_host:$proxy_port";
 gunicorn --workers 4 --bind $proxy_host:$proxy_port run:app
